@@ -15,12 +15,12 @@ const db = {
    ],
    boards: [
      {
-       'id': '45706cc2-f189-4eed-9e3f-29665168e717',
-       'title': 'Первая доска',
+       'id': '4949-kkfk-4949kdkd-oror40',
+       'title': 'One',
        'columns': [
          {
-           'id': 'fb2b3c20-0cd7-47c8-a9d5-5df289346e07',
-           'title': 'Столбик',
+           'id': 'jjhkj999-ijjkj99-hhj55jhkj-78hjhjh',
+           'title': 'column',
            'order': 0
          }
        ]
