@@ -1,43 +1,70 @@
 const uuid = require('uuid');
 const database = require('../../dbParametres/db');
 
-const {users} = database.db;
-const getAll = async () => users;
-const getUser = async (id) => {
+class Column {
+   constructor(title, order) {
+     this.id = uuid.v4();
+     this.title = title || 'Column';
+     this.order = order || 0;
+   }
+}
+
+const {boards} = database.db;
+const getAllBoards = async () => boards;
+const getBoard = async (id) => {
    if (typeof id !== 'string') return null;
-   return users.find(user => user.id === id);
+   return boards.find(board => board.id === id);
 };
-const setUser = async (user) => {
-   const newUser = { ...user, id: uuid.v4() };
-   users.push(newUser);
-   return newUser;
+const setBoard = async (board) => {
+   const { title, columns } = board;
+
+   let columnsWithId;
+ 
+   if (columns) {
+     columnsWithId = columns.map(col => ({
+         ...col,
+         id: uuid.v4()
+       }));
+   } else {
+     columnsWithId = [new Column()];
+   }
+ 
+   const boardData = {
+     columns: columnsWithId,
+     title,
+     id: uuid.v4(),
+   };
+ 
+   boards.push(boardData);
+ 
+   return boardData;
 };
-const updateUser = async (id, userData) => {
+const updateBoard = async (id, boardData) => {
   let index;
-  users.forEach((element, i) => {
+  boards.forEach((element, i) => {
      if(element.id === id) {
         index = i;
      }
   });
   if (index >= 0) {
-    const newUser = { ...userData, id };
-    users[index] = newUser;
-    return newUser;
+    const newBoard = { ...boardData, id };
+    boards[index] = newBoard;
+    return newBoard;
   }
   return index;
 };
-const deleteUser = async (id) => {
+const deleteBoard = async (boardId) => {
    let index;
-   users.forEach((element, i) => {
-      if(element.id === id) {
+   boards.forEach((element, i) => {
+      if(element.id === boardId) {
          index = i;
       }
    });
    if (index >= 0) {
-     users.splice(1, index);
+     boards.splice(1, index);
    }
    return index;
 };
 
 
-module.exports = { getAll, getUser, setUser, updateUser, deleteUser };
+module.exports = { getAllBoards, getBoard, setBoard, updateBoard, deleteBoard };

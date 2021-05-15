@@ -1,38 +1,40 @@
 const router = require('express').Router();
-const User = require('./boards.model');
-const usersService = require('./boards.service');
+const boardsService = require('./boards.service');
 
 router.route('/').get(async (req, res) => {
-   const users = await usersService.getAll();
+   const boards = await boardsService.getAllBoards();
    res
-     .status(users ? 200 : 400)
-     .json(users.map(User.toResponse));
+     .status(boards ? 200 : 400)
+     .json(boards);
 });
-router.route('/:id').get(async (req, res) => {
-   const user = await usersService.getUser(req.params.id);
+router.route('/:boardId').get(async (req, res) => {
+   const {boardId} = req.params;
+   const boards = await boardsService.getBoard(boardId);
    res
-     .status(user ? 200: 404)
-     .json(user? User.toResponse(user) : {});
+     .status(boards ? 200 : 404)
+     .json(boards);
 });
 router.route('/').post(async (req, res) => {
-   const user = await usersService.setUser(req.body);
-   res
-     .status(user ? 201: 400)
-     .json(User.toResponse(user));
+   const boards = await boardsService.setBoard(req.body);
+  res
+    .status(boards ? 201 : 400)
+    .json(boards);
 });
-router.route('/:id').put(async (req, res) => {
-   const {id} = req.params;
-   const userBody = req.body;
-   const user = await usersService.updateUser(id, userBody);
+router.route('/:boardId').put(async (req, res) => {
+   const {boardId} = req.params;
+   const boardData = req.body;
+   const board = await boardsService.updateBoard(boardId, boardData);
+ 
    res
-     .status(user ? 200: 400)
-     .json(user? User.toResponse(user) : {});
+     .status(board ? 200 : 400)
+     .json(board || {});
 });
 router.route('/:id').delete(async (req, res) => {
-   const {id} = req.params;
-   const user = await usersService.deleteUser(id);
+   const {boardId} = req.params;
+
+   const board = await boardsService.deleteBoard(boardId);
    res
-     .status(user ? 204: 404)
+     .status(board ? 204 : 404)
      .json();
 });
 
