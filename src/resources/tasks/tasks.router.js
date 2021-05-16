@@ -1,39 +1,45 @@
-const router = require('express').Router();
-const User = require('./tasks.model');
-const usersService = require('./tasks.service');
+const router = require('express').Router({ mergeParams: true });
+const tasksService = require('./tasks.service');
 
 router.route('/').get(async (req, res) => {
-   const users = await usersService.getAll();
-   res
-     .status(users ? 200 : 400)
-     .json(users.map(User.toResponse));
+  const { boardId } = req.params;
+  const tasks = await tasksService.getAllTasks(boardId);
+  res
+    .json(tasks);
 });
-router.route('/:id').get(async (req, res) => {
-   const user = await usersService.getUser(req.params.id);
-   res
-     .status(user ? 200: 404)
-     .json(user? User.toResponse(user) : {});
+
+router.route('/:taskId').get(async (req, res) => {
+  const { taskId, boardId } = req.params;
+
+  const task = await tasksService.getTask(boardId, taskId );
+  res
+    .status(task ? 200 : 404)
+    .json(task);
 });
+
 router.route('/').post(async (req, res) => {
-   const user = await usersService.setUser(req.body);
-   res
-     .status(user ? 201: 400)
-     .json(User.toResponse(user));
+  const { boardId } = req.params;
+  const task = await tasksService.setTask(boardId, req.body);
+  res
+    .status(task ? 201 : 400)
+    .json(task);
 });
-router.route('/:id').put(async (req, res) => {
-   const {id} = req.params;
-   const userBody = req.body;
-   const user = await usersService.updateUser(id, userBody);
-   res
-     .status(user ? 200: 400)
-     .json(user? User.toResponse(user) : {});
+
+router.route('/:taskId').put(async (req, res) => {
+  const {taskId, boardId} = req.params;
+  const taskData = req.body;
+  const task = await tasksService.updateTask(boardId, taskId, taskData);
+  res
+    .status(task ? 200 : 400)
+    .json(task);
 });
-router.route('/:id').delete(async (req, res) => {
-   const {id} = req.params;
-   const user = await usersService.deleteUser(id);
-   res
-     .status(user ? 204: 404)
-     .json();
+
+router.route('/:taskId').delete(async (req, res) => {
+  const {taskId, boardId} = req.params;
+  const index = await tasksService.deleteTask(boardId, taskId);
+  res
+    .status(index !== -1 ? 204 : 404)
+    .json();
 });
 
 module.exports = router;

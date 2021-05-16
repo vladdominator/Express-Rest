@@ -1,69 +1,49 @@
 const uuid = require('uuid');
 const database = require('../../dbParametres/db');
-
-class Column {
-   constructor(title, order) {
-     this.id = uuid.v4();
-     this.title = title || 'Column';
-     this.order = order || 0;
-   }
-}
+const Column = require('./boards.column');
 
 const {boards} = database.db;
 const getAllBoards = async () => boards;
-const getBoard = async (id) => {
-   if (typeof id !== 'string') return null;
-   return boards.find(board => board.id === id);
-};
-const setBoard = async (board) => {
-   const { title, columns } = board;
 
-   let columnsWithId;
- 
-   if (columns) {
-     columnsWithId = columns.map(col => ({
-         ...col,
-         id: uuid.v4()
-       }));
-   } else {
-     columnsWithId = [new Column()];
-   }
- 
-   const boardData = {
-     columns: columnsWithId,
-     title,
-     id: uuid.v4(),
-   };
- 
-   boards.push(boardData);
- 
-   return boardData;
+const getBoard = async (id) => boards.find(board => board.id === id);
+
+const setBoard = async (board) => {
+  const { title, columns } = board;
+  let columnsNew;
+  if (columns) {
+    columnsNew = columns.map(col => ({
+        ...col,
+        id: uuid.v4()
+      }));
+  } 
+  else {
+    columnsNew = [new Column()];
+  }
+  const boardNew = {
+    columns: columnsNew,
+    title,
+    id: uuid.v4(),
+  };
+  boards.push(boardNew);
+  return boardNew;
 };
+
 const updateBoard = async (id, boardData) => {
-  let index;
-  boards.forEach((element, i) => {
-     if(element.id === id) {
-        index = i;
-     }
-  });
-  if (index >= 0) {
+  const index = boards.findIndex(board => board.id === id);
+  if (index !== -1) {
     const newBoard = { ...boardData, id };
     boards[index] = newBoard;
     return newBoard;
   }
   return index;
 };
+
 const deleteBoard = async (boardId) => {
-   let index;
-   boards.forEach((element, i) => {
-      if(element.id === boardId) {
-         index = i;
-      }
-   });
-   if (index >= 0) {
-     boards.splice(1, index);
-   }
-   return index;
+  const index = boards.findIndex(board => board.id === boardId);
+  if (index !== -1) {
+    boards.splice(index, 1);
+  }
+  return index;
 };
 
 

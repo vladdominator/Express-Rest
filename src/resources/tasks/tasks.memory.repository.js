@@ -1,43 +1,42 @@
 const uuid = require('uuid');
 const database = require('../../dbParametres/db');
 
-const {users} = database.db;
-const getAll = async () => users;
-const getUser = async (id) => {
-   if (typeof id !== 'string') return null;
-   return users.find(user => user.id === id);
+let {tasks} = database.db;
+const getAllTasks = async (boardId) => tasks.filter(task => task.boardId === boardId);
+
+const getTask = async (boardId, taskId) => tasks.find(task => task.id === taskId);
+
+const setTask = async (boardId, taskData) => {
+   const newData = { ...taskData, boardId, id: uuid.v4() };
+   tasks.push(newData);
+   return newData;
 };
-const setUser = async (user) => {
-   const newUser = { ...user, id: uuid.v4() };
-   users.push(newUser);
-   return newUser;
+
+const updateTask = async (boardId, taskId, taskData) => {
+   const index = tasks.findIndex(task => task.id === taskId);
+   if (index !== -1) {
+     const newTask = { ...taskData, id: taskId };
+     tasks[index] = newTask;
+     return newTask;
+   }
+   return false;
 };
-const updateUser = async (id, userData) => {
-  let index;
-  users.forEach((element, i) => {
-     if(element.id === id) {
-        index = i;
-     }
-  });
-  if (index >= 0) {
-    const newUser = { ...userData, id };
-    users[index] = newUser;
-    return newUser;
-  }
-  return index;
-};
-const deleteUser = async (id) => {
-   let index;
-   users.forEach((element, i) => {
-      if(element.id === id) {
-         index = i;
-      }
-   });
-   if (index >= 0) {
-     users.splice(1, index);
+const deleteTask = async (boardId, taskId) => {
+   const index = tasks.findIndex(task => task.id === taskId);
+   if (index !== -1) {
+    tasks.splice(index, 1);
    }
    return index;
 };
+const deleteUserFrom = async (userId) => {
+   tasks.forEach((element, i) => {
+      if(element.userId === userId) {
+         tasks[i].userId = null;
+      }
+   });
+};
+const deleteBoardFrom = async (boardId) => {
+   tasks = tasks.filter(task => task.boardId !== boardId);
+};
 
-
-module.exports = { getAll, getUser, setUser, updateUser, deleteUser };
+module.exports = { getAllTasks, getTask, setTask, updateTask, deleteTask, deleteUserFrom, deleteBoardFrom };
